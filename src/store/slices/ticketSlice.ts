@@ -11,10 +11,14 @@ type Ticket = {
 
 type TicketState = {
   tickets: Ticket[];
+  loading: boolean;
+  error: string | null;
 };
 
 const initialState: TicketState = {
   tickets: [],
+  loading: false,
+  error: null,
 };
 
 const ticketSlice = createSlice({
@@ -23,50 +27,58 @@ const ticketSlice = createSlice({
   initialState,
 
   reducers: {
+    addTicket: (state, action) => {
+      state.tickets.push(action.payload);
+    },
 
- addTicket:(state,action)=>{
-   state.tickets.push(
-     action.payload
-   );
- },
+    updateTicketStatus: (state, action) => {
+      const ticket = state.tickets.find(
+        (item) => item.id === action.payload.id,
+      );
 
+      if (ticket) {
+        ticket.status = action.payload.status;
+      }
+    },
 
- updateTicketStatus:(state,action)=>{
-   const ticket =
-     state.tickets.find(
-       (item)=>
-         item.id === action.payload.id
-     );
+    setTickets: (state, action) => {
+      state.tickets = action.payload;
+    },
 
-   if(ticket){
-    ticket.status =action.payload.status;
-   }
+    deleteTicket: (state, action) => {
+      state.tickets = state.tickets.filter(
+        (ticket) => ticket.id !== action.payload,
+      );
+    },
+
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+
+    updateTicket: (state, action) => {
+      const index = state.tickets.findIndex(
+        (ticket) => ticket.id === action.payload.id,
+      );
+
+      if (index !== -1) {
+        state.tickets[index] = action.payload;
+      }
+    },
   },
-
-
-  setTickets:(state,action) => {
-    state.tickets = action.payload;
-  },
-
-  deleteTicket:(state,action) => {
-    state.tickets = state.tickets.filter(
-      ticket =>ticket.id !== action.payload
- );
-  },
-
-  updateTicket: (state, action) => {
-    const index = state.tickets.findIndex(
-      ticket => ticket.id === action.payload.id
-  );
-  if(index !== -1){
-    state.tickets[index] = action.payload;
-  }
-},
-
-},
-  
 });
 
-export const { addTicket , updateTicketStatus ,  setTickets, deleteTicket,updateTicket } =ticketSlice.actions;
+export const {
+  addTicket,
+  updateTicketStatus,
+  setLoading,
+  setError,
+  setTickets,
+  deleteTicket,
+  updateTicket
+} = ticketSlice.actions;
 
 export default ticketSlice.reducer;

@@ -8,32 +8,36 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+import TicketCard from "../../components/TicketCard";
+import { setLoading, setError } from "../../store/slices/ticketSlice";
 
 export default function DashboardScreen() {
   const tickets = useSelector((state: RootState) => state.tickets.tickets);
 
   const [apiTickets, setApiTickets] = useState<any[]>([]);
 
-  const [loading, setLoading] = useState(false);
+  const loading = useSelector((state: RootState) => state.tickets.loading);
+
+  const error = useSelector((state: RootState) => state.tickets.error);
 
   const [refreshing, setRefreshing] = useState(false);
-
-  const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
 
   const [page, setPage] = useState(1);
 
+  const dispatch = useDispatch();
+
   const navigation = useNavigation<any>();
 
   const fetchTickets = async (pageNumber = 1) => {
     try {
-      setLoading(true);
+      dispatch(setLoading(true));
 
       const response = await axios.get(
         "https://jsonplaceholder.typicode.com/posts",
@@ -55,11 +59,11 @@ export default function DashboardScreen() {
         setApiTickets((prev) => [...prev, ...data]);
       }
 
-      setError("");
+      dispatch(setError(null));
     } catch (error) {
-      setError("Failed to fetch tickets");
+      dispatch(setError("Failed to fetch tickets"));
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
 
       setRefreshing(false);
     }
@@ -69,24 +73,44 @@ export default function DashboardScreen() {
     fetchTickets();
   }, []);
 
-  const combinedTickets = [...tickets, ...apiTickets];
+  const filteredTickets = useMemo(() => {
+    const combinedTickets = [...tickets, ...apiTickets];
 
-  const filteredTickets = combinedTickets.filter((item: any) =>
-    (item.title || "").toLowerCase().includes(search.toLowerCase()),
-  );
+    return combinedTickets.filter((item: any) =>
+      (item.title || "").toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [tickets, apiTickets, search]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setRefreshing(true);
     setPage(1);
     fetchTickets(1);
-  };
+  }, []);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (loading) return;
+
     const nextPage = page + 1;
+
     setPage(nextPage);
+
     fetchTickets(nextPage);
-  };
+  }, [loading, page]);
+
+  const renderItem = useCallback(
+    ({ item }: any) => (
+      <TicketCard
+        item={item}
+        onPress={() =>
+          navigation.navigate("TicketDetails", {
+            ticketId: item.id,
+            ticket: item,
+          })
+        }
+      />
+    ),
+    [navigation],
+  );
 
   return (
     <View style={styles.container}>
@@ -124,27 +148,7 @@ export default function DashboardScreen() {
               <Text style={styles.emptyText}>No Tickets Available</Text>
             </View>
           }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate("TicketDetails", {
-                  ticketId: item.id,
-                  ticket: item,
-                })
-              }
-            >
-              <Text style={styles.ticketId}>ID: {item.id}</Text>
-
-              <Text style={styles.cardTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-
-              <Text style={styles.description} numberOfLines={2}>
-                {item.description || item.body}
-              </Text>
-            </TouchableOpacity>
-          )}
+          renderItem={renderItem}
         />
       )}
     </View>

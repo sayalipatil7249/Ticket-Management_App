@@ -57,7 +57,7 @@ export default function TicketDetailsScreen() {
       <Text>{ticket.description || ticket.body}</Text>
 
       <Text>
-  Created : {ticket.createdAt || "N/A"}
+  Created : {ticket.createdAt || new Date().toLocaleDateString()}
 </Text>
 
       <Text>Priority: {ticket.priority || "Medium"}</Text>
