@@ -114,12 +114,13 @@ const handleCreateTicket = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.buttonText}>
-        {editTicket ? "Update Ticket" : "Create Ticket"}
-      </Text>
+      <Text style={styles.heading}>
+  {editTicket ? "Update Ticket" : "Create Ticket"}
+</Text>
 
       <TextInput
         placeholder="Title"
+        placeholderTextColor="#666"
         style={styles.input}
         value={title}
         onChangeText={setTitle}
@@ -127,6 +128,7 @@ const handleCreateTicket = () => {
 
       <TextInput
         placeholder="Description"
+        placeholderTextColor="#666"
         style={styles.input}
         value={description}
         onChangeText={setDescription}
@@ -140,13 +142,15 @@ const handleCreateTicket = () => {
       /> */}
       <View style={styles.pickerContainer}>
   <Picker
-    selectedValue={priority}
-    onValueChange={(itemValue) => setPriority(itemValue)}
-  >
-    <Picker.Item label="Low" value="Low" />
-    <Picker.Item label="Medium" value="Medium" />
-    <Picker.Item label="High" value="High" />
-  </Picker>
+  selectedValue={priority}
+  onValueChange={(itemValue) => setPriority(itemValue)}
+  style={{ color: "#000" }}
+  dropdownIconColor="#000"
+>
+  <Picker.Item label="Low" value="Low" color="#000" />
+  <Picker.Item label="Medium" value="Medium" color="#000" />
+  <Picker.Item label="High" value="High" color="#000" />
+</Picker>
 </View>
       <TouchableOpacity style={styles.button} onPress={handleCreateTicket}>
         <Text style={styles.buttonText}>
@@ -178,6 +182,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 8,
   },
+  heading: {
+  fontSize: 24,
+  fontWeight: "bold",
+  color: "#000",
+  textAlign: "center",
+  marginBottom: 25,
+},
 
   button: {
     backgroundColor: "#6C63FF",
@@ -196,5 +207,6 @@ const styles = StyleSheet.create({
   borderColor: "#ccc",
   borderRadius: 8,
   marginBottom: 15,
+  backgroundColor: "#fff",
 },
 });

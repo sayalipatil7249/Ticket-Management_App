@@ -131,6 +131,7 @@ export default function DashboardScreen() {
       </View>
       <TextInput
         placeholder="Search tickets..."
+        placeholderTextColor="#666"
         style={styles.search}
         value={search}
         onChangeText={setSearch}
