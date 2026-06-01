@@ -3,38 +3,56 @@
 ## Overview
 Ticket Management App is a React Native application built using Expo, Redux Toolkit, React Navigation, and AsyncStorage.
 
-The application allows users to authenticate, create and manage tickets, update ticket status, search tickets, and persist both user sessions and ticket data locally. It also includes API integration, pull-to-refresh, infinite scrolling, and dashboard-based ticket management.
+The application allows users to:
+- Authenticate (Login / Logout)
+- Create, update, and manage tickets
+- View ticket details
+- Search tickets
+- Use API + local state together
+- Persist user sessions and tickets using AsyncStorage
+- Handle pagination, pull-to-refresh, and performance optimizations
 
 ---
 
 # Project Setup Steps
-
 ## Prerequisites
+
 - Node.js
 - npm
 - Expo Go (Android)
 
----
-
 ## Install Dependencies
+
 ```bash
 npm install
+```
 
+## Start Development Server
 
-Start Development Server
+```bash
 npx expo start
-Run Application
-Install Expo Go on your Android device
-Start the Expo development server
-Scan the QR code using Expo Go
-The application will launch on your device
-Build APK
+```
+
+## Run Application
+
+1. Install Expo Go on your Android device.
+2. Start the Expo development server.
+3. Scan the generated QR code using Expo Go.
+4. The application will launch on your device.
+
+## Build APK
+
+```bash
 eas build --platform android
-Architecture Explanation
+```
+
+# Architecture Explanation
 
 The application follows a feature-based architecture to keep code organized and scalable.
 
-Folder Structure
+## Folder Structure
+
+```text
 src/
 │
 ├── navigation/
@@ -64,10 +82,14 @@ src/
 │       └── ticketSlice.ts
 │
 └── App.tsx
-Navigation Flow
+```
+
+## Navigation Flow
+
+```text
 Login
    ↓
-Main App (Bottom Tabs)
+Bottom Tab Navigation
 
 ├── Dashboard
 ├── Create Ticket
@@ -76,125 +98,194 @@ Main App (Bottom Tabs)
 Dashboard
    ↓
 Ticket Details
-Navigation Components
-RootNavigator – Handles authentication flow
-AuthNavigator – Handles login screen
-BottomTabNavigator – Handles main app screens
-Ticket Stack – Handles ticket details navigation
-State Management
+```
+
+### Navigation Components
+
+- **RootNavigator** – Controls application startup flow and session restoration.
+- **AuthNavigator** – Handles authentication screens.
+- **BottomTabNavigator** – Provides access to main application sections.
+- **Ticket Details Navigation** – Allows users to view and manage individual tickets.
+
+---
+
+# State Management Approach
 
 Redux Toolkit is used for global state management.
 
-authSlice
+## authSlice
 
-Manages:
+Manages authentication-related data:
 
-User login
-User logout
-Authentication state
-Email storage
+- User login
+- User logout
+- Authentication state
+- Logged-in user email
 
-Example:
+Example state:
 
+```javascript
 {
-  "isLoggedIn": true,
-  "email": "user@example.com"
+  isLoggedIn: true,
+  email: "user@example.com"
 }
-ticketSlice
+```
 
-Manages:
+## ticketSlice
 
-Ticket list
-Create ticket
-Update ticket
-Delete ticket
-Status updates
+Manages ticket-related data:
 
-Example:
+- Ticket creation
+- Ticket listing
+- Ticket status updates
+- Ticket restoration from storage
 
+Example state:
+
+```javascript
 {
-  "tickets": [],
-  "loading": false,
-  "error": null
+  tickets: []
 }
-Why Redux Toolkit?
-Centralized state management
-Predictable updates
-Less boilerplate code
-Easy scalability
-Persistence Strategy
+```
 
-AsyncStorage is used to persist:
+## Why Redux Toolkit?
 
-User session
-Ticket data
+Redux Toolkit was chosen because authentication and ticket data are required across multiple screens such as Dashboard, Create Ticket, Ticket Details, and Profile.
 
-Flow:
+It provides:
 
-App Start
-→ Load AsyncStorage
-→ Restore Redux State
-→ Navigate User
-Features
-Authentication
-Login with email
-Validation
-Persistent session
-Auto login
-Dashboard
-FlatList rendering
-Search functionality
-Pull-to-refresh
-Infinite scrolling
-Loading & error handling
-Empty states
-Performance optimizations
-Ticket Management
-Create tickets
-Update tickets
-View ticket details
-Status flow: Open → In Progress → Closed
-Profile
-User email display
-Ticket count
-Logout functionality
+- Centralized state management
+- Predictable state updates
+- Reduced boilerplate code
+- Better scalability
 
-Logout:
+## Persistence Strategy
 
-Clears AsyncStorage
-Resets Redux state
-Redirects to Login
-API Integration
+AsyncStorage is used alongside Redux to persist:
 
-https://jsonplaceholder.typicode.com/posts
+- User session
+- Ticket data
 
-Used for:
+Application startup flow:
 
-Mock ticket data
-Dashboard listing
-Performance Optimizations
-FlatList optimization
-React.memo usage
-useMemo for filtering
-useCallback for functions
-Assumptions
-No backend authentication
-Email used as identity
-Ticket ID generated using Date.now()
-API used as mock data source
-Challenges Solved
-Session persistence using AsyncStorage
-Ticket persistence across reloads
-Complex navigation handling
-Combining API + local data
-FlatList performance optimization
-Future Improvements
-Backend integration
-Push notifications
-Dark mode
-Role-based access control
-Real-time updates
-Cloud sync
-Author
+```text
+App Starts
+    ↓
+Load AsyncStorage Data
+    ↓
+Restore Redux State
+    ↓
+Navigate User
+```
+
+This ensures users remain logged in and previously created tickets remain available after restarting the application.
+
+---
+
+# Assumptions Made
+
+1. No backend authentication service was provided, therefore authentication is simulated locally.
+
+2. User identity is represented using an email address.
+
+3. Ticket IDs are generated using `Date.now()` to ensure uniqueness.
+
+4. API data displayed on the dashboard is treated as sample ticket data.
+
+5. Ticket status follows a simplified workflow:
+
+```text
+Open
+ ↓
+In Progress
+ ↓
+Closed
+```
+
+6. All persistence requirements are handled locally using AsyncStorage.
+
+---
+
+# Challenges Faced
+
+## 1. Session Persistence
+
+Redux state resets whenever the application reloads.
+
+### Solution
+
+Stored user information in AsyncStorage and restored authentication state during application startup.
+
+---
+
+## 2. Ticket Persistence
+
+Initially, created tickets were lost after application reload.
+
+### Solution
+
+Implemented ticket persistence using AsyncStorage and restored tickets into Redux using a dedicated reducer.
+
+---
+
+## 3. Navigation Architecture
+
+Managing authentication flow together with bottom tab navigation required multiple navigators and conditional routing.
+
+### Solution
+
+Implemented nested navigation using:
+
+- Root Navigator
+- Stack Navigator
+- Bottom Tab Navigator
+
+---
+
+## 4. Combining Multiple Data Sources
+
+The dashboard needed to display:
+
+- User-created tickets
+- API-fetched tickets
+
+### Solution
+
+Combined both data sources into a single FlatList for a unified user experience.
+
+---
+
+## 5. Dashboard Performance
+
+Rendering large ticket lists efficiently while supporting refresh and pagination.
+
+### Solution
+
+Used:
+
+- FlatList
+- Pull-to-Refresh
+- Infinite Scrolling
+- Conditional Rendering
+
+to improve performance and user experience.
+
+---
+
+# Future Improvements
+
+- Edit Ticket Feature
+- Delete Ticket Feature
+- Backend Integration
+- Push Notifications
+- Dark Mode
+- Role-Based Access Control
+- Cloud Synchronization
+
+---
+
+# Author
 
 Sayali Patil
+
+React Native Ticket Management Application
