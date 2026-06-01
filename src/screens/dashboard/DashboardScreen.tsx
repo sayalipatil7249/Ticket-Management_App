@@ -31,73 +31,39 @@ export default function DashboardScreen() {
 
   const navigation = useNavigation<any>();
 
-  const fetchTickets = async (
-  pageNumber = 1
-) => {
+  const fetchTickets = async (pageNumber = 1) => {
+    try {
+      setLoading(true);
 
-  try{
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/posts",
 
-    setLoading(true);
+        {
+          params: {
+            _limit: 10,
 
-    const response =
-    await axios.get(
-
-'https://jsonplaceholder.typicode.com/posts',
-
-      {
-
-        params:{
-
-          _limit:10,
-
-          _page:pageNumber,
-
+            _page: pageNumber,
+          },
         },
-
-      }
-
-    );
-
-    const data =
-    response.data;
-
-    if(pageNumber===1){
-
-      setApiTickets(data);
-
-    }else{
-
-      setApiTickets(
-
-        prev => [
-
-          ...prev,
-
-          ...data,
-
-        ]
-
       );
 
+      const data = response.data;
+
+      if (pageNumber === 1) {
+        setApiTickets(data);
+      } else {
+        setApiTickets((prev) => [...prev, ...data]);
+      }
+
+      setError("");
+    } catch (error) {
+      setError("Failed to fetch tickets");
+    } finally {
+      setLoading(false);
+
+      setRefreshing(false);
     }
-
-    setError("");
-
-  }catch(error){
-
-    setError(
-      "Failed to fetch tickets"
-    );
-
-  }finally{
-
-    setLoading(false);
-
-    setRefreshing(false);
-
-  }
-
-};
+  };
 
   useEffect(() => {
     fetchTickets();
@@ -154,25 +120,29 @@ export default function DashboardScreen() {
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-          <View>
-            <Text style={styles.emptyText}>
-              No Tickets Available
-            </Text>
-          </View>}
-          renderItem={({item})=>(
+            <View>
+              <Text style={styles.emptyText}>No Tickets Available</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() =>navigation.navigate(
-                "TicketDetails",{
-                  ticketId:item.id,
-                  ticket:item,
-                }
-              )
-            }
+              onPress={() =>
+                navigation.navigate("TicketDetails", {
+                  ticketId: item.id,
+                  ticket: item,
+                })
+              }
             >
-              <Text>ID: {item.id}</Text>
-              <Text>{item.title}</Text>
-              <Text>{item.description || item.body}</Text>
+              <Text style={styles.ticketId}>ID: {item.id}</Text>
+
+              <Text style={styles.cardTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+
+              <Text style={styles.description} numberOfLines={2}>
+                {item.description || item.body}
+              </Text>
             </TouchableOpacity>
           )}
         />
@@ -219,19 +189,19 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
 
-  card:{
- backgroundColor:"#fff",
- padding:15,
- borderRadius:10,
- marginHorizontal:10,
- marginVertical:6,
- elevation:3,
-},
+  card: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginVertical: 6,
+    elevation: 3,
+  },
 
   cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: 8,
   },
 
   button: {
@@ -255,5 +225,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 10,
     backgroundColor: "white",
+  },
+
+  ticketId: {
+    color: "#666",
+    marginBottom: 6,
+  },
+
+  description: {
+    color: "#555",
+    lineHeight: 20,
   },
 });
