@@ -18,7 +18,6 @@ export default function ProfileScreen() {
     dispatch(logout());
   };
 
-
   return (
 
 <View style={styles.container}>

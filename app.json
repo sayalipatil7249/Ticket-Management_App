@@ -16,24 +16,26 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.sayali.ticket"
-    },
+  "adaptiveIcon": {
+    "foregroundImage": "./assets/adaptive-icon.png",
+    "backgroundColor": "#ffffff"
+  },
+  "edgeToEdgeEnabled": true,
+  "predictiveBackGestureEnabled": false,
+  "package": "com.sayali.ticket"
+},
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
+
     ],
     "extra": {
       "eas": {
         "projectId": "e6c88f1f-e39d-4962-a7b4-a24c4065884d"
       }
     }
+
   }
 }
